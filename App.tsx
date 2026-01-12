@@ -124,14 +124,6 @@ interface VipGroupConfig {
   tools: string[];
 }
 
-const descriptionGradients = [
-    'from-blue-900/40 to-purple-900/40 border-blue-500/30',
-    'from-emerald-900/40 to-teal-900/40 border-emerald-500/30',
-    'from-orange-900/40 to-red-900/40 border-orange-500/30', 
-    'from-pink-900/40 to-rose-900/40 border-pink-500/30',
-    'from-indigo-900/40 to-cyan-900/40 border-indigo-500/30'
-];
-
 const App: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<MainCategory>('controls');
   const [activeSubCategory, setActiveSubCategory] = useState<SubCategory>('writing');
@@ -141,7 +133,6 @@ const App: React.FC = () => {
   const { t } = useLanguage();
   
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [descColorIndex, setDescColorIndex] = useState(0);
   const [saveAnimation, setSaveAnimation] = useState(false);
   const [reloadAnimation, setReloadAnimation] = useState(false);
 
@@ -170,13 +161,6 @@ const App: React.FC = () => {
         }
     };
     cleanupOldProjects();
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-        setDescColorIndex((prev) => (prev + 1) % descriptionGradients.length);
-    }, 15000);
-    return () => clearInterval(interval);
   }, []);
 
   // Tool Registry Memo
@@ -354,14 +338,25 @@ const App: React.FC = () => {
 
   return (
     <div className={`min-h-screen font-sans flex flex-col transition-colors duration-300 ${isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-900'}`}>
+      <style>{`
+        @keyframes subtleSlideUpFade {
+          from { opacity: 0; transform: translateY(15px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-app-load {
+          animation: subtleSlideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.5s ease-out forwards;
+        }
+      `}</style>
+
       <header className={`p-4 w-full flex flex-col items-center border-b backdrop-blur-sm transition-colors duration-300 ${isDarkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-white/80 border-gray-200 shadow-sm'}`}>
-        <div className="text-center w-full max-w-2xl px-4 mb-4">
-            <AnimatedTitle title="កាម៉ងខ្ញុំ Studio Pro" />
-            <p className={`text-xs mt-2 p-2 rounded-lg border border-white/10 transition-all duration-1000 bg-gradient-to-r ${descriptionGradients[descColorIndex]} shadow-lg backdrop-blur-sm opacity-80`}>
-                CEO by អេតមីន - សាល , "គោលបំណងដែលខ្ញុំបង្កើត App this ឡើង គឺដើម្បីជួយ សម្រួលការលំបាក របស់បងប្អូនទាំងអស់គ្នា..."
-            </p>
-        </div>
-         <div className="flex items-center gap-4 flex-wrap justify-center">
+         <div className="flex items-center gap-4 flex-wrap justify-center mt-2">
             {activeTool !== 'project-vault' && activeTool !== 'vip-plan' && (
                 <div className="flex gap-2">
                     <button 
@@ -404,7 +399,7 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <main className="flex-grow flex flex-col items-center p-4 w-full">
+      <main className="flex-grow flex flex-col items-center p-4 w-full animate-app-load">
         <div className="mt-2 mb-8 flex justify-center gap-4 md:gap-6 p-1.5 bg-[#1e293b]/40 rounded-3xl border border-gray-700/50 backdrop-blur-md shadow-[0_10px_25px_rgba(0,0,0,0.3)]">
             <button 
                 onClick={() => handleCategoryChange('controls')} 
@@ -501,7 +496,7 @@ const App: React.FC = () => {
         </div>
       </main>
       <footer className={`w-full p-4 border-t text-center text-[10px] transition-colors duration-300 uppercase tracking-[0.3em] ${isDarkMode ? 'bg-gray-800/50 border-gray-700 text-gray-500' : 'bg-gray-100 border-gray-200 text-gray-400'}`}>
-        Copyright © 2026   អេតមីន - សាល | Admin: SAI (@SEYPISAL)
+        Adjustment Tool 2026
       </footer>
     </div>
   );

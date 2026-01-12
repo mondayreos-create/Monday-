@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { generateKhmerStory, generateImageForScene, generateVoiceover, generateCharacters, translateStoryContent, PrebuiltVoice, generateVideo } from '../services/geminiService.ts';
 import type { KhmerScene, Character } from '../services/geminiService.ts';
@@ -81,10 +82,12 @@ const pcmToWavBlob = (pcmData: Int16Array, numChannels: number, sampleRate: numb
     const buffer = new ArrayBuffer(44 + dataSize);
     const view = new DataView(buffer);
 
+    // RIFF chunk descriptor
     view.setUint32(0, 0x52494646, false); // "RIFF"
     view.setUint32(4, 36 + dataSize, true);
     view.setUint32(8, 0x57415645, false); // "WAVE"
 
+    // "fmt " sub-chunk
     view.setUint32(12, 0x666d7420, false); // "fmt "
     view.setUint32(16, 16, true); // Sub-chunk size (16 for PCM)
     view.setUint16(20, 1, true); // Audio format (1 for PCM)
@@ -96,6 +99,7 @@ const pcmToWavBlob = (pcmData: Int16Array, numChannels: number, sampleRate: numb
     view.setUint16(32, blockAlign, true);
     view.setUint16(34, bitsPerSample, true);
 
+    // "data" sub-chunk
     view.setUint32(36, 0x64617461, false); // "data"
     view.setUint32(40, dataSize, true);
     for (let i = 0; i < pcmData.length; i++) {
@@ -113,14 +117,7 @@ const ClearProjectButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
     </div>
 );
 
-const ratioOptions = [
-    { label: '16:9', value: '16:9' },
-    { label: '9:16', value: '9:16' },
-    { label: '1:1', value: '1:1' },
-    { label: '4:3', value: '4:3' },
-    { label: '3:4', value: '3:4' },
-];
-
+// FIX: Added missing VoiceGender type definition to resolve the compilation error.
 type VoiceGender = 'Male' | 'Female';
 
 const KhmerStoryGenerator: React.FC = () => {
@@ -258,7 +255,7 @@ const KhmerStoryGenerator: React.FC = () => {
 Style: ${stylePrompt}
 Scene: ${sceneVisual}
 
-Constraint: Please keep the characters’ faces and characteristics exactly the same in every scene. Do not change the characters’ faces or introduce new places. Please maintain everything exactly the same from Scene 1 all the way to Scene 100 — keep the characters’ faces and characteristics consistent in every scene.`;
+Constraint: Please keep the characters’ faces and characteristics exactly the same in every scene. Do NOT change the characters’ faces or introduce new places. Please maintain everything exactly the same from Scene 1 all the way to Scene 100 — keep the characters’ faces and characteristics consistent in every scene.`;
     };
 
     const handleAutoGenerateCharacters = async () => {
@@ -347,7 +344,8 @@ Constraint: Please keep the characters’ faces and characteristics exactly the 
             const fullPrompt = getFullPrompt(prompt);
 
             const blob = await generateVideo({
-                prompt: fullPrompt,
+                model: videoModel,
+                prompt: videoPrompt,
                 image: { base64: base64Data, mimeType },
                 aspectRatio: videoRatio as '16:9' | '9:16',
                 resolution: '720p'
@@ -520,7 +518,7 @@ Constraint: Please keep the characters’ faces and characteristics exactly the 
                     )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label className="block text-sm font-semibold mb-2 text-gray-300">{t('ksg_style')}</label>
                         <select 
@@ -529,16 +527,6 @@ Constraint: Please keep the characters’ faces and characteristics exactly the 
                             className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-cyan-500 outline-none appearance-none"
                         >
                             {stylesList.map(s => <option key={s} value={s}>{s}</option>)}
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-semibold mb-2 text-gray-300">Panel Size</label>
-                        <select 
-                            value={aspectRatio} 
-                            onChange={(e) => setAspectRatio(e.target.value)} 
-                            className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-cyan-500 outline-none appearance-none"
-                        >
-                            {ratioOptions.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
                         </select>
                     </div>
                     <div>
@@ -581,6 +569,30 @@ Constraint: Please keep the characters’ faces and characteristics exactly the 
                                 +
                             </button>
                         </div>
+                    </div>
+                </div>
+
+                {/* New Prominent Aspect Ratio Selector */}
+                <div className="mt-4 bg-gray-900/50 p-4 rounded-xl border border-gray-700 space-y-4">
+                    <h3 className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest flex items-center gap-2">
+                        📐 ទំហំរូបភាព (Aspect Ratio)
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                        {[
+                            { label: '16:9 (Landscape)', value: '16:9', icon: '📺' },
+                            { label: '9:16 (Portrait)', value: '9:16', icon: '📱' },
+                            { label: '1:1 (Square)', value: '1:1', icon: '🔳' },
+                            { label: '4:3 (Classic)', value: '4:3', icon: '🖼️' },
+                            { label: '3:4 (Tall)', value: '3:4', icon: '📏' }
+                        ].map((ratio) => (
+                            <button
+                                key={ratio.value}
+                                onClick={() => setAspectRatio(ratio.value)}
+                                className={`px-4 py-2 rounded-lg text-[10px] font-black transition-all border flex items-center gap-2 ${aspectRatio === ratio.value ? 'bg-cyan-600 border-cyan-400 text-white shadow-lg scale-105' : 'bg-gray-800 border-gray-700 text-gray-500 hover:text-gray-300'}`}
+                            >
+                                <span>{ratio.icon}</span> {ratio.label}
+                            </button>
+                        ))}
                     </div>
                 </div>
 
@@ -655,7 +667,7 @@ Constraint: Please keep the characters’ faces and characteristics exactly the 
                                         {copiedPromptIndex === index ? <span className="text-green-400 font-bold">Copied!</span> : <><CopyIcon className="h-3 w-3" /> {t('ksg_prompt')}</>}
                                     </button>
                                     <button
-                                        onClick={() => handleGenerateImage(scene.sceneNumber, scene.visualPrompt)}
+                                        onClick={handleGenerateImage(scene.sceneNumber, scene.visualPrompt)}
                                         disabled={sceneImages[scene.sceneNumber]?.loading}
                                         className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 rounded transition text-white shadow-sm disabled:opacity-50"
                                     >
@@ -698,7 +710,7 @@ Constraint: Please keep the characters’ faces and characteristics exactly the 
                                         </div>
                                     ) : sceneImages[scene.sceneNumber]?.url ? (
                                         <>
-                                            <img src={sceneImages[scene.sceneNumber].url!} alt={`Scene ${scene.sceneNumber}`} className="w-full h-full object-contain max-h-[500px]" />
+                                            <img src={sceneImages[scene.sceneNumber].url!} alt={`Scene ${scene.sceneNumber}`} className="w-full h-full object-cover max-h-[500px]" />
                                             
                                             {/* Overlay Buttons */}
                                             <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">

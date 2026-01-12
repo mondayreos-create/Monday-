@@ -57,6 +57,7 @@ const StoryGenerator: React.FC = () => {
     
     const [startScene, setStartScene] = useState(1);
     const [endScene, setEndScene] = useState(15);
+    const [selectedAspectRatio, setSelectedAspectRatio] = useState<string>('16:9');
     
     const [characters, setCharacters] = useState<ExtendedCharacter[]>([]);
     const [aiCharacterCount, setAiCharacterCount] = useState(2);
@@ -82,6 +83,7 @@ const StoryGenerator: React.FC = () => {
                 setStyle(data.style || '');
                 if (data.startScene) setStartScene(data.startScene);
                 if (data.endScene) setEndScene(data.endScene);
+                if (data.selectedAspectRatio) setSelectedAspectRatio(data.selectedAspectRatio);
                 setIsFastMode(data.isFastMode ?? true);
                 if (data.characters) {
                      setCharacters(data.characters.map((c: any) => ({...c, id: c.id || Date.now() + Math.random()})));
@@ -112,6 +114,7 @@ const StoryGenerator: React.FC = () => {
                 style,
                 startScene,
                 endScene,
+                selectedAspectRatio,
                 characters,
                 story: generatedStory,
                 isFastMode,
@@ -199,7 +202,7 @@ const StoryGenerator: React.FC = () => {
             let allScenes: StoryScene[] = [];
             
             const synopsis = selectedIdea?.summary || satoriInput;
-            const styleConstraint = `${style}. Strict consistency applied.`;
+            const styleConstraint = `${style}. Strict consistency applied. Ratio: ${selectedAspectRatio}.`;
 
             for (let i = 0; i < batches; i++) {
                 const currentBatchStart = startScene + (i * BATCH_SIZE);
@@ -235,7 +238,7 @@ const StoryGenerator: React.FC = () => {
             setIsLoading(false);
             setProgress(0);
         }
-    }, [selectedIdea, satoriInput, style, startScene, endScene, characters, isFastMode, isDirectMode]);
+    }, [selectedIdea, satoriInput, style, startScene, endScene, characters, isFastMode, isDirectMode, selectedAspectRatio]);
 
     const handleClear = () => {
         setStep(1);
@@ -248,6 +251,7 @@ const StoryGenerator: React.FC = () => {
         setStartScene(1);
         setEndScene(15);
         setProgress(0);
+        setSelectedAspectRatio('16:9');
     };
 
     const inputFieldClasses = "bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block w-full p-2.5 placeholder-gray-400";
@@ -301,7 +305,7 @@ const StoryGenerator: React.FC = () => {
                                                 const firstStyle = styles.find(s => s.category === cat.key);
                                                 if (firstStyle) setStyle(firstStyle.value);
                                             }}
-                                            className={`px-4 py-2 rounded-lg text-xs font-black transition-all border flex items-center gap-2 ${activeStyleCategory === cat.key ? 'bg-cyan-600 border-cyan-400 text-white shadow-lg' : 'bg-gray-800 border-gray-700 text-gray-400'}`}
+                                            className={`px-4 py-2 rounded-lg text-xs font-black transition-all border ${activeStyleCategory === cat.key ? 'bg-cyan-600 border-cyan-400 text-white shadow-lg' : 'bg-gray-800 border-gray-700 text-gray-400'}`}
                                         >
                                             <span>{cat.icon}</span> {cat.label}
                                         </button>
@@ -364,6 +368,30 @@ const StoryGenerator: React.FC = () => {
                                         <label className="block text-xs font-medium text-gray-400 mb-1">End Scene</label>
                                         <input type="number" value={endScene} onChange={(e) => setEndScene(Math.max(startScene, parseInt(e.target.value) || 1))} className={inputFieldClasses} />
                                     </div>
+                                </div>
+                            </div>
+
+                            {/* Aspect Ratio Selector */}
+                            <div className="bg-gray-900/50 p-4 rounded-xl border border-gray-700 space-y-4">
+                                <h3 className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest flex items-center gap-2">
+                                    📐 ទំហំរូបភាព (Aspect Ratio)
+                                </h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {[
+                                        { label: '16:9 (Landscape)', value: '16:9', icon: '📺' },
+                                        { label: '9:16 (Portrait)', value: '9:16', icon: '📱' },
+                                        { label: '1:1 (Square)', value: '1:1', icon: '🔳' },
+                                        { label: '4:3 (Classic)', value: '4:3', icon: '🖼️' },
+                                        { label: '3:4 (Tall)', value: '3:4', icon: '📏' }
+                                    ].map((ratio) => (
+                                        <button
+                                            key={ratio.value}
+                                            onClick={() => setSelectedAspectRatio(ratio.value)}
+                                            className={`px-4 py-2 rounded-lg text-[10px] font-black transition-all border flex items-center gap-2 ${selectedAspectRatio === ratio.value ? 'bg-cyan-600 border-cyan-400 text-white shadow-lg scale-105' : 'bg-gray-800 border-gray-700 text-gray-500 hover:text-gray-300'}`}
+                                        >
+                                            <span>{ratio.icon}</span> {ratio.label}
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
 

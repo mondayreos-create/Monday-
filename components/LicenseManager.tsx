@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { KeyAuthAPI } from '../services/keyauthService.ts';
 import { useAuth } from './AuthContext.tsx';
@@ -84,7 +83,7 @@ const LicenseManager: React.FC = () => {
                  <div className="text-center mb-8">
                     <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300">License Login</h2>
                     <p className="text-slate-400 mt-1">Please enter your credentials to access the studio.</p>
-                    <p className="text-slate-400 mt-2 text-sm">my owner manager tools : អេតមីន - សាល</p>
+                    <p className="text-slate-400 mt-2 text-sm">my owner manager tools : SP Tool</p>
                 </div>
 
                 <div className="space-y-4" onKeyDown={handleKeyDown}>

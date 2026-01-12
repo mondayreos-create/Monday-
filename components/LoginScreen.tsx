@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useAuth } from './AuthContext.tsx';
 
@@ -29,7 +28,7 @@ const LoginScreen: React.FC = () => {
 
                 <h2 className="text-3xl font-bold text-white mb-3 tracking-tight">Welcome Back</h2>
                 <p className="text-gray-400 mb-10 text-sm leading-relaxed">
-                    អេតមីន - សាល ( AI Tools V.4 Pro )
+                    SP Tool ( AI Tools V.4 Pro )
                     <br/>
                     <span className="text-gray-500">Sign in to access your creative studio</span>
                 </p>

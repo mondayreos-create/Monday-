@@ -8,7 +8,7 @@ function get_hwid(): string {
     return hwid;
 }
 
-const VALID_USERNAME = "Admin Sal";
+const VALID_USERNAME = "SP Tool";
 const VALID_PASSWORD = "studentai2026";
 
 

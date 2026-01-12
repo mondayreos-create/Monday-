@@ -4,7 +4,7 @@ import { useAuth, generateAvatar } from './AuthContext.tsx';
 const UserProfile: React.FC = () => {
   const { user, googleUser, logout } = useAuth();
   // Prefer google user if available for display, otherwise license user
-  const displayUser = googleUser || user || { name: 'Admin Sal', picture: '' };
+  const displayUser = googleUser || user || { name: 'SP Tool', picture: '' };
   const [imgSrc, setImgSrc] = useState<string>('');
 
   useEffect(() => {
