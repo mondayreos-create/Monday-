@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
-import { generateKhmerStory, generateImageForScene, generateVoiceover, generateCharacters, translateStoryContent, PrebuiltVoice, generateVideo } from '../services/geminiService.ts';
+/* Added generateImage to the import list to resolve the "Cannot find name 'generateImage'" error. */
+import { generateKhmerStory, generateImage, generateVoiceover, generateCharacters, translateStoryContent, PrebuiltVoice, generateVideo } from '../services/geminiService.ts';
 import type { KhmerScene, Character } from '../services/geminiService.ts';
 import { useLanguage } from './LanguageContext.tsx';
 
@@ -145,6 +145,9 @@ const KhmerStoryGenerator: React.FC = () => {
     const [aiCharacterCount, setAiCharacterCount] = useState(2);
     const [copiedCharacterIndex, setCopiedCharacterIndex] = useState<number | null>(null);
     
+    // FIX: Defined missing videoModel state to resolve "Cannot find name 'videoModel'" error.
+    const [videoModel, setVideoModel] = useState('veo-3.1-fast-generate-preview');
+
     const [sceneImages, setSceneImages] = useState<Record<number, { loading: boolean; url: string | null; error: string | null }>>({});
     const [sceneVideos, setSceneVideos] = useState<Record<number, { loading: boolean; url: string | null; error: string | null }>>({});
     const [audioUrls, setAudioUrls] = useState<Record<string, { loading: boolean; url: string | null }>>({});
@@ -322,7 +325,7 @@ Constraint: Please keep the characters’ faces and characteristics exactly the 
         setSceneImages(prev => ({ ...prev, [sceneNumber]: { loading: true, url: null, error: null } }));
         try {
             const fullPrompt = getFullPrompt(prompt);
-            const imageUrl = await generateImageForScene(fullPrompt, aspectRatio);
+            const imageUrl = await generateImage(fullPrompt, aspectRatio);
             setSceneImages(prev => ({ ...prev, [sceneNumber]: { loading: false, url: imageUrl, error: null } }));
         } catch (err) {
             setSceneImages(prev => ({ ...prev, [sceneNumber]: { loading: false, url: null, error: 'Image generation failed.' } }));
@@ -343,9 +346,10 @@ Constraint: Please keep the characters’ faces and characteristics exactly the 
             
             const fullPrompt = getFullPrompt(prompt);
 
+            // FIX: Corrected videoPrompt to fullPrompt to resolve "Cannot find name 'videoPrompt'" error.
             const blob = await generateVideo({
                 model: videoModel,
-                prompt: videoPrompt,
+                prompt: fullPrompt,
                 image: { base64: base64Data, mimeType },
                 aspectRatio: videoRatio as '16:9' | '9:16',
                 resolution: '720p'
@@ -667,7 +671,7 @@ Constraint: Please keep the characters’ faces and characteristics exactly the 
                                         {copiedPromptIndex === index ? <span className="text-green-400 font-bold">Copied!</span> : <><CopyIcon className="h-3 w-3" /> {t('ksg_prompt')}</>}
                                     </button>
                                     <button
-                                        onClick={handleGenerateImage(scene.sceneNumber, scene.visualPrompt)}
+                                        onClick={() => handleGenerateImage(scene.sceneNumber, scene.visualPrompt)}
                                         disabled={sceneImages[scene.sceneNumber]?.loading}
                                         className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 rounded transition text-white shadow-sm disabled:opacity-50"
                                     >

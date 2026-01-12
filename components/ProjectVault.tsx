@@ -56,7 +56,7 @@ const ProjectVault: React.FC = () => {
 
   const handleDeleteProject = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!window.confirm("តើអ្នកប្រាកដជាចង់លុបគម្រោងនេះមែនទេ? (Are you sure you want to delete this project?)")) return;
+    if (!window.confirm("តើអ្នកប្រាកដជាចង់លុបគម្រោងនេះមែនទេ? (Are you sure you want to delete this project permanently?)")) return;
     const updated = history.filter(p => p.id !== id);
     localStorage.setItem('global_project_history', JSON.stringify(updated));
     setHistory(updated);
@@ -73,6 +73,7 @@ const ProjectVault: React.FC = () => {
   };
 
   const handleExportBackup = () => {
+    if (history.length === 0) return;
     const blob = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -104,7 +105,7 @@ const ProjectVault: React.FC = () => {
             alert("Invalid backup file.");
         }
     };
-    reader.readAsText(file);
+    reader.readAsDataURL(file);
   };
 
   const handleLoadProject = (project: any) => {
@@ -152,23 +153,23 @@ const ProjectVault: React.FC = () => {
       
       {/* Premium Header Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-gradient-to-br from-[#1e293b] to-[#0f172a] p-6 rounded-[2rem] border border-cyan-500/20 shadow-2xl flex flex-col items-center text-center relative overflow-hidden group">
+          <div className="bg-gradient-to-br from-[#1e293b] to-[#0f172a] p-6 rounded-[2.5rem] border border-cyan-500/20 shadow-2xl flex flex-col items-center text-center relative overflow-hidden group">
               <div className="absolute inset-0 bg-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <span className="text-3xl mb-2">📊</span>
               <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Total Projects</span>
               <span className="text-4xl font-black text-white mt-1">{totalProjects}</span>
           </div>
-          <div className="bg-gradient-to-br from-[#1e293b] to-[#0f172a] p-6 rounded-[2rem] border border-purple-500/20 shadow-2xl flex flex-col items-center text-center relative overflow-hidden group">
+          <div className="bg-gradient-to-br from-[#1e293b] to-[#0f172a] p-6 rounded-[2.5rem] border border-purple-500/20 shadow-2xl flex flex-col items-center text-center relative overflow-hidden group">
               <div className="absolute inset-0 bg-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <span className="text-3xl mb-2">💾</span>
               <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Vault Storage</span>
               <span className="text-4xl font-black text-white mt-1">{storageSize} <span className="text-sm">MB</span></span>
           </div>
-          <div className="bg-gradient-to-br from-[#1e293b] to-[#0f172a] p-6 rounded-[2rem] border border-pink-500/20 shadow-2xl flex flex-col items-center text-center relative overflow-hidden group">
+          <div className="bg-gradient-to-br from-[#1e293b] to-[#0f172a] p-6 rounded-[2.5rem] border border-pink-500/20 shadow-2xl flex flex-col items-center text-center relative overflow-hidden group">
               <div className="absolute inset-0 bg-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <span className="text-3xl mb-2">🛡️</span>
               <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Safety Status</span>
-              <span className="text-xl font-black text-emerald-400 mt-1 uppercase tracking-tighter">Auto-Backup ON</span>
+              <span className="text-xl font-black text-emerald-400 mt-1 uppercase tracking-tighter">Backup Ready</span>
           </div>
       </div>
 
@@ -189,7 +190,8 @@ const ProjectVault: React.FC = () => {
           <div className="flex gap-4 w-full md:w-auto flex-wrap justify-center">
               <button 
                 onClick={handleExportBackup}
-                className="px-6 py-3.5 bg-[#1e293b] hover:bg-gray-800 text-gray-300 hover:text-white font-black rounded-2xl border-2 border-gray-700 transition-all flex items-center justify-center gap-3 shadow-xl uppercase tracking-tighter text-xs active:scale-95"
+                disabled={history.length === 0}
+                className="px-6 py-3.5 bg-[#1e293b] hover:bg-gray-800 text-gray-300 hover:text-white font-black rounded-2xl border-2 border-gray-700 transition-all flex items-center justify-center gap-3 shadow-xl uppercase tracking-tighter text-xs active:scale-95 disabled:opacity-30"
               >
                   <ExportIcon /> EXPORT
               </button>
